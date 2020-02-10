@@ -8,14 +8,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
-<BorderPane fx:controller="sample.Controller" xmlns:fx="http://javafx.com/fxml" padding="20">
+<BorderPane fx:controller="sample.Controller" xmlns:fx="http://javafx.com/fxml">
     <center>
         <TextArea fx:id="sentText" editable="false" wrapText="true"/>
     </center>
 
     <bottom>
         <HBox>
-            <TextField fx:id="textToSand" onKeyPressed="#onEnter" HBox.hgrow="ALWAYS" />
+            <TextField fx:id="textToSand" onKeyPressed="#onEnter" HBox.hgrow="ALWAYS"/>
             <Button text="Отправить" onAction="#onMouse"/>
         </HBox>
     </bottom>
