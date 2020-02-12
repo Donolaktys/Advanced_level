@@ -12,10 +12,12 @@ import java.awt.*;
 
 public class Controller {
     @FXML
+    //текст для отправки
     public TextField textToSand;
+    //отправленный текст
     public TextArea sentText;
 
-
+    //нажатие мышкой кнопки "отправить"
     public void onMouse(ActionEvent actionEvent) {
         sentText.setText(sentText.getText() + "\n" + textToSand.getText());
         sentText.positionCaret(sentText.getText().length());
@@ -23,9 +25,9 @@ public class Controller {
         textToSand.requestFocus();
     }
 
+    //нажатие клавиши Enter в строке сообщения
     public void onEnter(KeyEvent keyEvent) {
-        if (keyEvent.getCode().equals(KeyCode.ENTER))
-        {
+        if (keyEvent.getCode().equals(KeyCode.ENTER)) {
             sentText.setText(sentText.getText() + "\n" + textToSand.getText());
             sentText.positionCaret(sentText.getText().length());
             textToSand.setText("");
