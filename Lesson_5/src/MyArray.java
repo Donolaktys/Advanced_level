@@ -3,31 +3,40 @@ public class MyArray{
     private static final int h = size / 2;
     private static float[] arr = new float[size];;
 
-    public MyArray() {
+//Конструктор
+    public MyArray() { }
 
-    }
+//Присвоить всем элементам значение 1
+    private static void initArray() { for (int i = 0; i < size; i++) { arr[i] = 1f; } }
 
-    private static void initArray() {
-        for (int i = 0; i < size; i++) {
-            arr[i] = 1f;
-        }
-    }
+//Возвращает массив
     private static float[] getArr() {
         return arr;
     }
 
+    /**
+     *  Вычислить каждый элемент массива по формуле
+     *  recount для полного массива или первой части разделенного
+     *  recount2 для второй части разделенного
+     */
+
     private static void recount(float[] array) {
         for (int i = 0; i < array.length; i++) {
-            array[i] = (float)(arr[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
+            array[i] = (float)(array[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
         }
     }
 
+    private static void recount2(float[] array) {
+        int i = h;
+        for (int j = 0; j < array.length; j++, i++) {
+            array[j] = (float)(array[j] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
+        }
+    }
     /**
      * Метод без разделения массива
      */
     public static void singleThread() {
         initArray();
-
         long a = System.currentTimeMillis();
         recount(getArr());
         System.out.println("Время на пересчет массива первым методом " + (System.currentTimeMillis() - a));
@@ -42,13 +51,13 @@ public class MyArray{
 
         initArray();
 
-//разбиваем массив на 2
+//разбить массив на 2 массива
         long a = System.currentTimeMillis();
         System.arraycopy(arr, 0, a1, 0, h);
         System.arraycopy(arr, h, a2, 0, h);
         System.out.println("Время на разбивку " + (System.currentTimeMillis() - a));
 
-//обрабатываем 2 массива в разных потоках
+//обработать 2 массива в разных потоках
         Thread rec1 = new Thread(() -> {
             long b = System.currentTimeMillis();
             recount(a1);
@@ -57,14 +66,13 @@ public class MyArray{
 
         Thread rec2 = new Thread(() -> {
             long c = System.currentTimeMillis();
-            recount(a2);
+            recount2(a2);
             System.out.println("Время на пересчет второго потока " + (System.currentTimeMillis() - c));
         });
 
         rec1.start();
         rec2.start();
 
-//ждем конец работы потоков
         try {
             rec1.join();
             rec2.join();
@@ -72,7 +80,7 @@ public class MyArray{
             e.printStackTrace();
         }
 
-//объединяем 2 полученных массива
+//объединить 2 полученных массива
         long d = System.currentTimeMillis();
         System.arraycopy(arr, 0, a1, 0, h);
         System.arraycopy(arr, h, a2, 0, h);
@@ -81,36 +89,4 @@ public class MyArray{
         System.out.println("Время на пересчет массива вторым методом " + (System.currentTimeMillis() - all));
 
     }
-
 }
-
-
-
-//        Значения получаются ~ одинаковые, но есть ли предпочтительное решение для вычисления времени работы потоков
-//        Throw ... { ... sout}
-//        или как в коде ниже
-//        try { rec1.join(); sout; ... }
-//        и есть ли вообще разница?
-
-
-//        long b = System.currentTimeMillis();
-//        Thread rec1 = new Thread(() -> {
-//            recount(a1);
-//        });
-//
-//        long c = System.currentTimeMillis();
-//        Thread rec2 = new Thread(() -> {
-//            recount(a2);
-//        });
-//
-//        rec1.start();
-//        rec2.start();
-//
-//        try {
-//            rec1.join();
-//            System.out.println("Время на пересчет первого потока " + (System.currentTimeMillis() - b));
-//            rec2.join();
-//            System.out.println("Время на пересчет второго потока " + (System.currentTimeMillis() - c));
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
