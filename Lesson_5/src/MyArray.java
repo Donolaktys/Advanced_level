@@ -58,24 +58,20 @@ public class MyArray{
         System.out.println("Время на разбивку " + (System.currentTimeMillis() - a));
 
 //обработать 2 массива в разных потоках
-        Thread rec1 = new Thread(() -> {
-            long b = System.currentTimeMillis();
-            recount(a1);
-            System.out.println("Время на пересчет первого потока " + (System.currentTimeMillis() - b));
-        });
+        long b = System.currentTimeMillis();
+        Thread rec1 = new Thread(() -> { recount(a1); });
 
-        Thread rec2 = new Thread(() -> {
-            long c = System.currentTimeMillis();
-            recount2(a2);
-            System.out.println("Время на пересчет второго потока " + (System.currentTimeMillis() - c));
-        });
+        long c = System.currentTimeMillis();
+        Thread rec2 = new Thread(() -> { recount2(a2); });
 
         rec1.start();
         rec2.start();
 
         try {
             rec1.join();
+            System.out.println("Время на пересчет первого потока " + (System.currentTimeMillis() - b));
             rec2.join();
+            System.out.println("Время на пересчет второго потока " + (System.currentTimeMillis() - c));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

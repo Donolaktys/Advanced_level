@@ -1,22 +1,26 @@
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.GridPane?>
+<?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
-<BorderPane fx:controller="sample.Controller" xmlns:fx="http://javafx.com/fxml">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+    <top>
+        <MenuBar>
+            <Menu text="Меню">
+                <MenuItem onAction="#refresh" text="Обновить" />
+                <MenuItem onAction="#close" text="Закрыть" />
+            </Menu>
+        </MenuBar>
+    </top>
+
     <center>
-        <TextArea fx:id="sentText" editable="false" wrapText="true"/>
+        <TextArea fx:id="sentText" editable="false" wrapText="true" />
     </center>
 
     <bottom>
         <HBox>
-            <TextField fx:id="textToSand" onKeyPressed="#onEnter" HBox.hgrow="ALWAYS"/>
-            <Button text="Отправить" onAction="#onMouse"/>
+            <TextField fx:id="textToSand" onAction="#sentMsg" promptText="Enter для отправки" HBox.hgrow="ALWAYS" />
+            <Button contentDisplay="RIGHT" onAction="#sentMsg" text="Отправить" />
         </HBox>
     </bottom>
 
