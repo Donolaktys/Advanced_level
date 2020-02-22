@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.Controller">
+    <top>
+        <MenuBar>
+            <Menu text="Меню">
+                <MenuItem onAction="#refresh" text="Обновить" />
+                <MenuItem onAction="#close" text="Закрыть" />
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <center>
+        <TextArea fx:id="sentText" editable="false" wrapText="true" />
+    </center>
+
+    <bottom>
+        <HBox>
+            <TextField fx:id="textMsg" onAction="#sentMsg" promptText="Enter для отправки" HBox.hgrow="ALWAYS" />
+            <Button contentDisplay="RIGHT" onAction="#sentMsg" text="Отправить" />
+        </HBox>
+    </bottom>
+
+</BorderPane>
