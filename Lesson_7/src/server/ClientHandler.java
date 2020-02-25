@@ -100,7 +100,7 @@ public class ClientHandler {
 
     }
 
-    //отправляем сообщение серверу
+    //отправляем сообщение клиенту
     public void sendMsg(String msg) {
         try {
             outputStream.writeUTF(msg);
