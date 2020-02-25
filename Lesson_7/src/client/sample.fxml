@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:controller="client.Controller" xmlns="http://javafx.com/javafx/10.0.2-internal"
+      xmlns:fx="http://javafx.com/fxml/1">
+    <HBox fx:id="authPanel" managed="true">
+        <TextField fx:id="loginField" HBox.hgrow="ALWAYS" promptText="Login"/>
+        <PasswordField fx:id="passwordField" HBox.hgrow="ALWAYS" promptText="Password" onAction="#tryToAuth"/>
+        <Button text="Войти" onAction="#tryToAuth"/>
+    </HBox>
 
-<BorderPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.Controller">
-    <top>
-        <MenuBar>
-            <Menu text="Меню">
-                <MenuItem onAction="#refresh" text="Обновить" />
-                <MenuItem onAction="#close" text="Закрыть" />
-            </Menu>
-        </MenuBar>
-    </top>
+    <TextArea fx:id="sentText" editable="false" VBox.vgrow="ALWAYS" wrapText="true"/>
 
-    <center>
-        <TextArea fx:id="sentText" editable="false" wrapText="true" />
-    </center>
-
-    <bottom>
-        <HBox>
-            <TextField fx:id="textMsg" onAction="#sentMsg" promptText="Enter для отправки" HBox.hgrow="ALWAYS" />
-            <Button contentDisplay="RIGHT" onAction="#sentMsg" text="Отправить" />
-        </HBox>
-    </bottom>
-
-</BorderPane>
+    <HBox fx:id="msgPanel" visible="false" managed="false">
+        <TextField fx:id="textMsg" onAction="#sentMsg" promptText="Enter для отправки" HBox.hgrow="ALWAYS"/>
+        <Button contentDisplay="RIGHT" onAction="#sentMsg" text="Отправить"/>
+    </HBox>
+</VBox>
