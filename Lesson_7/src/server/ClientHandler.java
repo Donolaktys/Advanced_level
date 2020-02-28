@@ -2,6 +2,7 @@ package server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -12,6 +13,7 @@ public class ClientHandler {
     Server server;
     private String nick;
     private String login;
+    private boolean exit = false;
 
     public ClientHandler(Socket socket, Server server) {
         try {
@@ -25,20 +27,29 @@ public class ClientHandler {
                     // цикл аутентификации
                     while (true) {
                         String str = inputStream.readUTF();
+                        if (str.equals("/end")) {
+                            exit = true;
+                            break;
+                        }
                         if (str.startsWith("/auth ")) {
                             String[] token = str.split(" ");
+                            if (token.length < 3) {
+                                continue;
+                            }
                             String newNick = server
                                     .getAuthService()
                                     .getNicknameByLoginAndPassword(token[1], token[2]);
-                            if (server.clientOnline(newNick)) {
-                                sendMsg("Этот клиент уже подключен");
-                            } else if (newNick != null) {
-                                sendMsg("/authok " + newNick);
-                                nick = newNick;
+                            if (newNick != null) {
                                 login = token[1];
-                                server.subscribe(this);
-                                System.out.println("Клиент " + nick + " подключился");
-                                break;
+                                if (!server.isLoginAuthorized(login)) {
+                                    sendMsg("/authok " + newNick);
+                                    nick = newNick;
+                                    server.subscribe(this);
+                                    System.out.println("Клиент " + nick + " подключился");
+                                    break;
+                                } else {
+                                    sendMsg("С этим логином уже авторизовались");
+                                }
                             } else {
                                 sendMsg("Неверный логин или пароль");
                             }
@@ -50,26 +61,27 @@ public class ClientHandler {
 
                         String str = inputStream.readUTF();
 
-                        if (str.equals("/end")) {
+                        if(exit) {
                             sendMsg("/end");
                             break;
                         }
-
-                        // если приватное сообщение
-                        if (str.startsWith("/w ")) {
-                            String[] privateMsgInfo = str.split(" ", 3);
-                            String recipient = privateMsgInfo[1];
-                            String msg = privateMsgInfo[2];
-                            if (server.clientOnline(recipient)) {
-                                server.privateMsg(nick, recipient, msg);
-                            } else {
-                                sendMsg("!Получатель " + recipient + " не доступен или данные указаны не верно!");
+                        // все сообщения начинающиеся с "/"
+                        if (str.startsWith("/")) {
+                            // сообщение о завершении работы клиента
+                            if (str.equals("/end")) {
+                                sendMsg("/end");
+                                break;
                             }
-                            break;
+                            // приватное сообщение
+                            if (str.startsWith("/w ")) {
+                                String[] privateMsgInfo = str.split(" ", 3);
+                                if(privateMsgInfo.length == 3) {
+                                    server.privateMsg(this, privateMsgInfo[1], privateMsgInfo[2]);
+                                }
+                            }
+                        } else {
+                            server.broadcastMsg(nick,   str);
                         }
-
-                        server.broadcastMsg(str);
-
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -100,7 +112,7 @@ public class ClientHandler {
 
     }
 
-    //отправляем сообщение серверу
+    //отправляем сообщение клиенту
     public void sendMsg(String msg) {
         try {
             outputStream.writeUTF(msg);
@@ -111,5 +123,9 @@ public class ClientHandler {
 
     public String getNick() {
         return nick;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }

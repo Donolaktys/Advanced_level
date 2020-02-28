@@ -2,6 +2,7 @@ package client;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.MenuBar;
@@ -10,6 +11,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -42,6 +44,7 @@ public class Controller implements Initializable {
     DataOutputStream outputStream;
     private boolean authenticated;
     private String nickname;
+    private boolean exit = false;
 
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
@@ -60,6 +63,21 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         authenticated = false;
+        Platform.runLater(() -> {
+            Stage stage = (Stage) sentText.getScene().getWindow();
+            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                @Override
+                public void handle(WindowEvent event) {
+                    if (socket != null && !socket.isClosed()) {
+                        try {
+                            outputStream.writeUTF("/end");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+        });
     }
 
     public void connect() {
@@ -73,6 +91,12 @@ public class Controller implements Initializable {
                     // цикл аутентификации
                     while (true) {
                         String str = inputStream.readUTF();
+
+                        if (str.equals("/end")) {
+                            exit = true;
+                            break;
+                        }
+
                         if (str.startsWith("/authok ")) {
                             setAuthenticated(true);
                             nickname = str.split(" ")[1];
@@ -81,12 +105,15 @@ public class Controller implements Initializable {
                         sentText.appendText(str + "\n");
                     }
 
-                    setTitle("chat : " + nickname);
+
 
                     // цикл работы
                     while (true) {
                         String str = inputStream.readUTF();
 
+                        if(exit) break;
+
+                        setTitle("chat : " + nickname);
                         // если отключение
                         if (str.equals("/end")) {
                             setAuthenticated(false);

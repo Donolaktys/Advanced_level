@@ -40,32 +40,25 @@ public class Server {
     }
 
     // Отправляем всем клиентам
-    public void broadcastMsg(String msg) {
+    public void broadcastMsg(String nick, String msg) {
         for (ClientHandler c : clients) {
-            c.sendMsg(msg);
+            c.sendMsg(nick + " : " + msg);
         }
     }
 
     // Отправить приватное
-    public void privateMsg(String sender, String recipient, String msg) {
+    public void privateMsg(ClientHandler sender, String recipient, String msg) {
+        String privateMsg = String.format("%s для %s : %s", sender.getNick(), recipient, msg);
         for (ClientHandler c : clients) {
             if (c.getNick().equals(recipient)) {
-                c.sendMsg("Личное от " + sender + ": " + msg);
-            }
-            if (c.getNick().equals(sender)) {
-                c.sendMsg("Личное для " + recipient + ": " + msg);
-            }
-        }
-    }
-
-    public boolean clientOnline(String nick) {
-        boolean result = false;
-        for (ClientHandler c : clients) {
-            if (c.getNick().equals(nick)) {
-                result = true;
+                c.sendMsg(privateMsg);
+                if (!sender.getNick().equals(recipient)) {
+                sender.sendMsg(privateMsg);
+                }
+                return;
             }
         }
-        return result;
+        sender.sendMsg("Not found user " + recipient);
     }
 
     public void subscribe(ClientHandler clientHandler) {
@@ -74,6 +67,15 @@ public class Server {
 
     public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+    }
+
+    public boolean isLoginAuthorized (String login) {
+        for (ClientHandler c : clients) {
+            if (c.getLogin().equals(login)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

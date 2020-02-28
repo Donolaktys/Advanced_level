@@ -14,7 +14,7 @@
     <TextArea fx:id="sentText" editable="false" VBox.vgrow="ALWAYS" wrapText="true"/>
 
     <HBox fx:id="msgPanel" visible="false" managed="false">
-        <TextField fx:id="textMsg" onAction="#sentMsg" promptText="Enter для отправки" HBox.hgrow="ALWAYS"/>
+        <TextField fx:id="textMsg" onAction="#sentMsg" promptText="/help для справки" HBox.hgrow="ALWAYS"/>
         <Button contentDisplay="RIGHT" onAction="#sentMsg" text="Отправить"/>
     </HBox>
 </VBox>
