@@ -20,6 +20,7 @@ import javafx.stage.WindowEvent;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -136,8 +137,10 @@ public class Controller implements Initializable {
                             textArea.appendText(str + "\n");
                         }
                     }
+                } catch (EOFException e) {
+                    textArea.appendText("Соединение с сервером отключено!\n");
                 } catch (SocketException e) {
-                    System.out.println("Сервер отключился");
+                    textArea.appendText("Сервер отключился\n");
                     setAuthenticated(false);
                 } catch (IOException e) {
                     e.printStackTrace();

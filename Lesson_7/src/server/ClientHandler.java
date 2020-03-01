@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class ClientHandler {
     Socket socket = null;
@@ -24,6 +25,9 @@ public class ClientHandler {
                 try {
                     //цикл аутентификации
                     while (true) {
+
+                        socket.setSoTimeout(16000);
+
                         String str = in.readUTF();
                         if (str.startsWith("/reg ")) {
                             String[] token = str.split(" ");
@@ -67,6 +71,9 @@ public class ClientHandler {
 
                     //цикл работы
                     while (true) {
+
+                        socket.setSoTimeout(0);
+
                         String str = in.readUTF();
 
                         if (str.startsWith("/")) {
@@ -86,6 +93,8 @@ public class ClientHandler {
 
 
                     }
+                } catch(SocketTimeoutException e) {
+                    System.out.println("Клиент отключен по тайм-ауту");
                 } catch (RuntimeException e) {
                     System.out.println("сами вызвали исключение.");
                 } catch (IOException e) {
