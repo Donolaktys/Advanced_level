@@ -1,13 +1,21 @@
 package server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 import java.util.Vector;
 
 public class Server {
     private Vector<ClientHandler> clients;
     private AuthService authService;
+
+    public AuthService getAuthService() {
+        return authService;
+    }
 
     public Server() {
         clients = new Vector<>();
@@ -18,62 +26,77 @@ public class Server {
         try {
             server = new ServerSocket(8189);
             System.out.println("Сервер запустился");
+
             while (true) {
                 socket = server.accept();
                 System.out.println("Клиент подключился");
                 new ClientHandler(socket, this);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
                 server.close();
-                System.out.println("Сервер отключен");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public AuthService getAuthService() {
-        return authService;
-    }
-
-    // Отправляем всем клиентам
-    public void broadcastMsg(String msg) {
+    public void broadcastMsg(String nick, String msg) {
         for (ClientHandler c : clients) {
-            c.sendMsg(msg);
+            c.sendMsg(nick + " : " + msg);
         }
     }
 
-    // Отправить приватное
-    public void privateMsg(String sender, String recipient, String msg) {
+    public void privateMsg(ClientHandler sender, String receiver, String msg) {
+        String message = String.format("[ %s ] private [ %s ] : %s", sender.getNick(), receiver, msg);
+
         for (ClientHandler c : clients) {
-            if (c.getNick().equals(recipient)) {
-                c.sendMsg("Личное от " + sender + ": " + msg);
-            }
-            if (c.getNick().equals(sender)) {
-                c.sendMsg("Личное для " + recipient + ": " + msg);
+            if (c.getNick().equals(receiver)) {
+                c.sendMsg(message);
+                if (!sender.getNick().equals(receiver)) {
+                    sender.sendMsg(message);
+                }
+                return;
             }
         }
+
+        sender.sendMsg("not found user :" + receiver);
     }
 
-    public boolean clientOnline(String nick) {
-        boolean result = false;
-        for (ClientHandler c : clients) {
-            if (c.getNick().equals(nick)) {
-                result = true;
-            }
-        }
-        return result;
-    }
 
     public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
+        broadcastClientList();
     }
 
     public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+        broadcastClientList();
+    }
+
+
+    public boolean isLoginAuthorized(String login) {
+        for (ClientHandler c : clients) {
+            if (c.getLogin().equals(login)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void broadcastClientList() {
+        StringBuilder sb = new StringBuilder("/clientlist ");
+
+        for (ClientHandler c : clients) {
+            sb.append(c.getNick()).append(" ");
+        }
+
+        String msg = sb.toString();
+        for (ClientHandler c : clients) {
+            c.sendMsg(msg);
+        }
     }
 }
-
